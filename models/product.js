@@ -1,30 +1,68 @@
+const {ObjectId}=require('mongodb');
 const getDb=require('../util/database').getDb;
 class Product{
-  constructor(title,price,description,imageUrl){
+  constructor(title,price,description,imageUrl,id){
     this.title=title,
     this.price=price,
     this.description=description,
-    this.imageUrl=imageUrl
+    this.imageUrl=imageUrl,
+    this._id=new ObjectId(id)
   }
   save(){
     const db=getDb();
-    console.log('this');
-    console.log(this);
-    console.log("db.collection('products')");
-    db.collection('products').find().toArray((err,docs)=>{
-      if(err){
-        reject('error in finding');
-      }
-      else
-      resolve(docs);
-    });
+    let dbOp;
+    if(this._id){
+      //update the product
+        dbOp=db.collection('products').updateOne({_id:this._id},{$set:this})
+        return dbOp;
+    }else{
     return db.collection('products').insertOne(this).then(result=>{
       console.log(result);
     })
+  
     .catch(err=>{
       console.log(err);
     })
   }
+  }
+  static fetchAll(){
+    const db=getDb();
+    return db
+    .collection('products')
+    .find()
+    .toArray()
+    .then(products=>{
+      console.log(products);
+      return products;
+    }).catch(error=>{
+      console.log(error);
+    })
+  }
+  static findById(prodId){
+    const db=getDb();
+    return db
+    .collection('products')
+    .find({"_id":new ObjectId(prodId)})
+    .next()
+    .then(product=>{
+      console.log(product);
+      return product;
+    }).catch(error=>{
+      console.log(error);
+    })
+
+  }
+  static deleteById(prodId){
+    const db=getDb();
+    return db.collection('products').deleteOne({_id:new ObjectId(prodId)})
+    .then(()=>{
+      console.log('Deleted');
+
+    }).catch(err=>{
+      console.log(err);
+    })
+  }
+
 }
 
 
