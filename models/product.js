@@ -1,71 +1,22 @@
-const {ObjectId}=require('mongodb');
-const getDb=require('../util/database').getDb;
-class Product{
-  constructor(title,price,description,imageUrl,id,userId){
-    this.title=title,
-    this.price=price,
-    this.description=description,
-    this.imageUrl=imageUrl,
-    this._id=id ? new ObjectId(id):null,
-    this.userId=userId
+const mongoose=require('mongoose');
+const Schema=mongoose.Schema;
+const productSchema=new Schema({
+  title:{
+    type:String,
+    required:true
+  },
+  price:{
+    type:Number,
+    required:true
+  },
+  description:{
+    type:String,
+    required:true
+  },
+  imageUrl:{
+    type:String,
+    required:true
   }
-  save(){
-    const db=getDb();
-    let dbOp;
-    if(this._id){
-      //update the product
-        dbOp=db.collection('products').updateOne({_id:this._id},{$set:this})
-        return dbOp;
-    }else{
-    return db.collection('products').insertOne(this).then(result=>{
-      console.log(result);
-    })
-  
-    .catch(err=>{
-      console.log(err);
-    })
-  }
-  }
-  static fetchAll(){
-    const db=getDb();
-    return db
-    .collection('products')
-    .find()
-    .toArray()
-    .then(products=>{
-      console.log(products);
-      return products;
-    }).catch(error=>{
-      console.log(error);
-    })
-  }
-  static findById(prodId){
-    const db=getDb();
-    return db
-    .collection('products')
-    .find({"_id":new ObjectId(prodId)})
-    .next()
-    .then(product=>{
-      console.log(product);
-      return product;
-    }).catch(error=>{
-      console.log(error);
-    })
+})
 
-  }
-  static deleteById(prodId){
-    const db=getDb();
-    return db.collection('products').deleteOne({_id:new ObjectId(prodId)})
-    .then(()=>{
-      console.log('Deleted');
-
-    }).catch(err=>{
-      console.log(err);
-    })
-  }
-
-}
-
-
-
-module.exports = Product;
+ module.exports =mongoose.model('Product',productSchema);
