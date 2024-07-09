@@ -50,6 +50,10 @@ const userSchema=new Schema({
     
     
     }
+    userSchema.methods.clearCart=function(){
+      this.cart={items:[]}
+      return this.save();
+    }
     
 
 
